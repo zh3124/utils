@@ -15,12 +15,12 @@ TEST(test_init, test)
 
 TEST(test_insert, test)
 {
-    ac_machine_insert(handle, "abd");
-    ac_machine_insert(handle, "abdk");
-    ac_machine_insert(handle, "abchijn");
-    ac_machine_insert(handle, "chnit");
-    ac_machine_insert(handle, "ijabdf");
-    ac_machine_insert(handle, "ijaij");
+    ac_machine_insert(handle, (uint8_t *)"abd", 3);
+    ac_machine_insert(handle, (uint8_t *)"abdk", 4);
+    ac_machine_insert(handle, (uint8_t *)"abchijn", 7);
+    ac_machine_insert(handle, (uint8_t *)"chnit", 5);
+    ac_machine_insert(handle, (uint8_t *)"ijabdf", 6);
+    ac_machine_insert(handle, (uint8_t *)"ijaij", 5);
 }
 
 TEST(test_compile, test)
@@ -28,13 +28,13 @@ TEST(test_compile, test)
     ac_machine_compile(handle);
 }
 
-char *text = "abchnijabdfk";
+uint8_t *text = (uint8_t *)"abchnijabdfk";
 TEST(test_search, test)
 {
     int max_num = 10;
-    char **result_pattens = (char **)malloc(sizeof(char *) * max_num);
-    int *patten_lens = (int *)malloc(sizeof(int) * max_num);
-    int ret = ac_machine_search(handle, text, strlen(text), result_pattens, patten_lens, max_num);
+    uint8_t **result_pattens = (uint8_t **)malloc(sizeof(uint8_t *) * max_num);
+    uint8_t *patten_lens = (uint8_t *)malloc(sizeof(uint8_t) * max_num);
+    int ret = ac_machine_search(handle, text, 12, result_pattens, patten_lens, max_num);
     EXPECT_TRUE(ret == 2);
     EXPECT_TRUE(patten_lens[0] == 3);
     EXPECT_TRUE(patten_lens[1] == 6);

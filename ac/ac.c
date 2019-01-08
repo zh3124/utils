@@ -5,15 +5,15 @@
 
 #include "ac.h"
 
-#define POINT_NUM 26
+#define POINT_NUM 256
 
 typedef struct node
 {
     struct node *fail;
     struct node *next[POINT_NUM];
-    int ifend;
-    int patten_len;
-    char *key;
+    uint8_t *patten;
+    uint8_t patten_len;
+    uint8_t ifend;
 }NODE;
 
 void *ac_machine_init()
@@ -24,10 +24,13 @@ void *ac_machine_init()
         return NULL;
     root->fail = NULL;
     for(i = 0; i < POINT_NUM; i ++)
+    {
         root->next[i] = NULL;
-    root->ifend = 0;
+    }
+    root->patten = NULL;
     root->patten_len = 0;
-    root->key = NULL;
+    root->ifend = 0;
+
     return root;
 }
 
@@ -36,31 +39,37 @@ static NODE* new_node(NODE* root)
     int i;
     NODE *node = (NODE *)malloc(sizeof(*node));
     if(node == NULL)
+    {
         return NULL;
+    }
     node->fail = root;
     for(i = 0; i < POINT_NUM; i ++)
+    {
         node->next[i] = NULL;
+    }
+    node->patten = NULL;
+    node->patten_len = 0;
     node->ifend = 0;
-    node->key = NULL;
+
     return node;
 }
 
-int ac_machine_insert(void *handle, char *patten)
+int ac_machine_insert(void *handle, uint8_t *patten, uint8_t len)
 {
-    int len = strlen(patten),i;
+    int i;
     NODE *root = (NODE *)handle;
     NODE *cur = root;
     for(i = 0; i < len; i ++)
     {
-        if(cur->next[patten[i] - 'a'] == NULL)
+        if(cur->next[patten[i]] == NULL)
         {
-            cur->next[patten[i] - 'a'] = new_node(root);
+            cur->next[patten[i]] = new_node(root);
         }
-        cur = cur->next[patten[i] - 'a'];
+        cur = cur->next[patten[i]];
     }
+    cur->patten = patten;
+    cur->patten_len = len;
     cur->ifend = 1;
-    cur->patten_len = strlen(patten);
-    cur->key = patten;
 
     return 0;
 }
@@ -90,7 +99,7 @@ void ac_machine_compile(void *handle)
     build_node_child_fail(root);
 }
 
-static void search_point(NODE *root, NODE **tmp, int point, char *text, uint64_t offset , char **result_pattens, int *patten_lens, int max_size, int *result_num)
+static void search_point(NODE *root, NODE **tmp, uint8_t point, uint8_t *text, uint64_t offset , uint8_t **result_pattens, uint8_t *patten_lens, int max_size, int *result_num)
 {
     if (*result_num >= max_size)
     {
@@ -127,16 +136,16 @@ static void search_point(NODE *root, NODE **tmp, int point, char *text, uint64_t
     }
 }
 
-int ac_machine_search(void *handle, char *text, uint64_t len, char **result_pattens, int *patten_lens, int max_size)
+int ac_machine_search(void *handle, uint8_t *text, uint64_t len, uint8_t **result_pattens, uint8_t *patten_lens, int max_size)
 {
     NODE *root = (NODE *)handle;
     NODE *tmp = root;
     int result_num = 0;
     uint64_t i;
-    int point;
+    uint8_t point;
     for(i = 0; i < len; i ++)
     {
-        point = text[i] - 'a';
+        point = text[i];
         if (result_num >= max_size)
         {
             return result_num;

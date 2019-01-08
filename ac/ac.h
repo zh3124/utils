@@ -8,9 +8,9 @@
 
 
 void *ac_machine_init();
-int ac_machine_insert(void *handle, char *patten);
+int ac_machine_insert(void *handle, uint8_t *patten, uint8_t len);
 void ac_machine_compile(void *handle);
-int ac_machine_search(void *handle, char *text, uint64_t len, char **result_patten, int *patten_len, int max_size);
+int ac_machine_search(void *handle, uint8_t *text, uint64_t len, uint8_t **result_pattens, uint8_t *patten_lens, int max_size);
 void ac_machine_release(void *handle);
 
 #endif
