@@ -93,7 +93,7 @@ digraph AC {
     - 1 ) 表示当前结点的指针指向AC自动机的根结点，即curr = root
     - 2 ) 从文本串中读取（下）一个字符（i）
     - 3 ) 从当前结点的所有孩子结点中寻找与该字符匹配的结点，
-        - 3.1 )若存在：curr节点指向匹配节点(curr = curr->next[i])，并判断curr结点以及curr->fail节点是否表示一个字符串的结束，若是，则将文本串中索引起点记录在对应字符串保存结果集合中（索引起点= 当前索引-字符串长度+1）。返回继续执行步骤2)
+        - 3.1 )若存在：curr节点指向匹配节点(curr = curr->next[i])，并判断curr结点以及curr的fail链条上所有节点是否表示一个字符串的结束，若是，则将命中模式串在文本串中的起点记录到结果集合中（命中模式串在文本串中的起点 = 当前偏移量-命中字符串长度+1）。返回继续执行步骤2)
         - 3.2 )若不存在：执行第4步。
     - 4 ) 检测curr->fail是否为NULL
         - 4.1 )是NULL（说明curr==root，且root下无所需字符）。返回继续执行步骤2)
@@ -185,7 +185,6 @@ digraph AC {
     - 3.1 构造的基本方法
 
         - 1 ) 建造Trie树，默认root的fail为空，其他节点的fail为root。
-        - 2 ) 构建node->child的fail指针：从根节点递归，针对每个节点执行以下操作（包括根节点）
-            - 2.1 ) 遍历子节点，如果i子节点存在(node->next[i] != NULL -->  child = node->next[i];)则执行2.2）和2.3），否则不执行任何操作
-            - 2.2 ) 如果node节点的fail不为空(node非root)且fail的i子节点也存在(node->fail != NULL && node->fail->next[i] != NULL)，那么child节点的fail指向node节点的fail的i子节点(child->fail = node->fail->next[i])
-            - 2.3 ) 对i子节点执行递归步骤2）
+        - 2 ) 使用递归或者链表方式，<font color="red">**按层级遍历字典树**</font>，针对每个node节点（不含root：NULL != node->fail），建立其child的fail指针;原则如下：
+            - 2.1 ) 遍历node的子节点，如果i子节点存在(node->next[i] != NULL -->  child = node->next[i];)则执行2.2）
+            - 2.2 ) 遍历node的fail链，(fail = node->fail; while (fail != NULL) fail = fail->fail;), 直到fail指向NULL或者fail的i子节点也存在(fail->next[i] != NULL);如果fail的i子节点存在，那么child节点的fail指向fail节点的i子节点(child->fail = fail->next[i])
